@@ -1,12 +1,19 @@
-require("dotenv").config();
+import dotenv from "dotenv";
+dotenv.config();
+import "@nomiclabs/hardhat-waffle";
+import "@nomiclabs/hardhat-etherscan";
+import "hardhat-gas-reporter";
+import "solidity-coverage";
+import { HardhatUserConfig } from "hardhat/types";
 
-require("@nomiclabs/hardhat-etherscan");
-require("@nomiclabs/hardhat-waffle");
-require("hardhat-gas-reporter");
-require("solidity-coverage");
+// This adds support for typescript paths mappings
+import "tsconfig-paths/register";
+import "@typechain/hardhat";
+import "@nomiclabs/hardhat-ethers";
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
+// @ts-ignore
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   const accounts = await hre.ethers.getSigners();
 
@@ -21,7 +28,7 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
-module.exports = {
+const config: HardhatUserConfig = {
   solidity: {
     compilers: [
       {
@@ -49,3 +56,5 @@ module.exports = {
     apiKey: process.env.ETHERSCAN_API_KEY,
   },
 };
+
+export default config;
