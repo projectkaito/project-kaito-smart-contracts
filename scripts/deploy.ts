@@ -2,13 +2,13 @@ import hre from "hardhat";
 
 async function deployContract() {
   const ContractFactory = await hre.ethers.getContractFactory("Kaito");
-  const constructorArguments = [
+  const constructorArguments: [string,string,string,string] = [
     "1",
     "7777",
     "5",
     "1",
   ];
-  const contract = await ContractFactory.deploy(constructorArguments[0], constructorArguments[1], constructorArguments[2], constructorArguments[3]);
+  const contract = await ContractFactory.deploy(...constructorArguments);
 
   await contract.deployed();
 
