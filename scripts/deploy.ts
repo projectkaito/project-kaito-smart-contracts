@@ -74,7 +74,7 @@ const deploy = async (name: string, args: (string | number)[] = [], verification
 
 async function main() {
   const [deployer] = await ethers.getSigners();
-  const kaito = await deploy("Kaito", [1, 7777, 10, 100]);
+  const kaito = await deploy("Kaito", [1, 7777, 10, 100, deployer.address]);
 }
 
 main()

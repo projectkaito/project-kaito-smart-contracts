@@ -40,7 +40,8 @@ contract Kaito is Ownable, ERC721A, AccessControl, ReentrancyGuard {
         uint256 maxBatchSize_,
         uint256 collectionSize_,
         uint256 maxTeamMint_,
-        uint256 maxWhitelistMint_
+        uint256 maxWhitelistMint_,
+        address owner_
     ) ERC721A("Kaito", "Kaito", maxBatchSize_, collectionSize_) {
         maxTeamMint = maxTeamMint_;
         maxWhitelistMint = maxWhitelistMint_;
@@ -57,7 +58,8 @@ contract Kaito is Ownable, ERC721A, AccessControl, ReentrancyGuard {
                 address(this)
             )
         );
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _setupRole(DEFAULT_ADMIN_ROLE, owner_);
+        transferOwnership(owner_);
     }
 
     function mintTeam(
