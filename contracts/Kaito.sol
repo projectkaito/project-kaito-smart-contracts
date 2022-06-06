@@ -39,11 +39,11 @@ contract Kaito is Ownable, ERC721A, AccessControl, ReentrancyGuard {
     constructor(
         uint256 maxBatchSize_,
         uint256 collectionSize_,
-        uint256 _maxTeamMint,
-        uint256 _maxWhitelistMint
+        uint256 maxTeamMint_,
+        uint256 maxWhitelistMint_
     ) ERC721A("Kaito", "Kaito", maxBatchSize_, collectionSize_) {
-        maxTeamMint = _maxTeamMint;
-        maxWhitelistMint = _maxWhitelistMint;
+        maxTeamMint = maxTeamMint_;
+        maxWhitelistMint = maxWhitelistMint_;
         uint256 chainId;
         assembly {
             chainId := chainid()

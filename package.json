@@ -1,9 +1,8 @@
 {
   "name": "hardhat-project",
   "scripts": {
-    "deploy": "npx hardhat run scripts/deploy.ts",
+    "deploy": "npx hardhat run --network ropsten scripts/deploy.ts",
     "deploy:local": "npx hardhat run --network localhost scripts/deploy.ts"
-
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.6",

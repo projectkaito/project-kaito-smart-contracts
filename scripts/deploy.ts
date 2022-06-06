@@ -1,93 +1,85 @@
-import hre from "hardhat";
+const { utils, constants } = require("ethers");
+const { ethers } = require("hardhat");
+const hre = require("hardhat");
 
-async function deployContract() {
-  const ContractFactory = await hre.ethers.getContractFactory("Kaito");
-  const constructorArguments: [string,string,string,string] = [
-    "1",
-    "7777",
-    "5",
-    "1",
-  ];
-  const contract = await ContractFactory.deploy(...constructorArguments);
+const ROUTERS = {
+  PANCAKE: "0x10ED43C718714eb63d5aA57B78B54704E256024E",
+  PANCAKE_TESTNET: "0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3",
+  UNISWAP: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+  SUSHISWAP_TESTNET: "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506",
+  PANGALIN: "0xE54Ca86531e17Ef3616d22Ca28b0D458b6C89106",
+};
 
+const sleep = async (s: number) => {
+  for (let i = s; i > 0; i--) {
+    process.stdout.write(`\r \\ ${i} waiting..`);
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    process.stdout.write(`\r | ${i} waiting..`);
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    process.stdout.write(`\r / ${i} waiting..`);
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    process.stdout.write(`\r - ${i} waiting..`);
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    if (i === 1) process.stdout.clearLine(0);
+  }
+};
+
+const verify = async (contractAddress: string, args: (string | number)[] = [], name?: string, wait: number = 100) => {
+  try {
+    await hre.run("verify:verify", {
+      address: contractAddress,
+      constructorArguments: args,
+    });
+    return true;
+  } catch (e) {
+    if (
+      String(e).indexOf(`${contractAddress} has no bytecode`) !== -1 ||
+      String(e).indexOf(`${contractAddress} does not have bytecode`) !== -1
+    ) {
+      console.log(`Verification failed, waiting ${wait} seconds for etherscan to pick the deployed contract`);
+      await sleep(wait);
+    }
+
+    try {
+      await hre.run("verify:verify", {
+        address: contractAddress,
+        constructorArguments: args,
+      });
+      return true;
+    } catch (e) {
+      if (String(e).indexOf("Already Verified") !== -1 || String(e).indexOf("Already verified") !== -1) {
+        console.log(name ?? contractAddress, "is already verified!");
+        return true;
+      } else {
+        console.log(e);
+        return false;
+      }
+    }
+  }
+};
+
+const deploy = async (name: string, args: (string | number)[] = [], verificationWait = 100) => {
+  const contractFactory = await ethers.getContractFactory(name);
+  const contract = await contractFactory.deploy(...args);
   await contract.deployed();
+  console.log(`${name}: ${contract.address}`);
 
-  console.log("Contract deployed to:", contract.address);
+  if (hre.network.name === "localhost") return contract;
 
-  await contract.deployTransaction.wait();
+  console.log("Verifying...");
+  await verify(contract.address, args, name);
 
-  hre.network.name === "hardhat"
-    ? console.log("Skipping verify")
-    : await verifyContract(contract.address, constructorArguments);
-}
-
-// async function deployContract() {
-//   const ContractFactory = await hre.ethers.getContractFactory("PoolFactory");
-//   const contract = await ContractFactory.deploy();
-
-//   await contract.deployed();
-
-//   console.log("Contract deployed to:", contract.address);
-
-//   await contract.deployTransaction.wait();
-
-//   hre.network.name === "hardhat" ? console.log("Skipping verify") : await verifyContract(contract.address, []);
-// }
+  return contract;
+};
 
 async function main() {
-  // console.log("Uncomment to deploy");
-  // console.log("Deploying Pool");
-  // await deployPool();
-  console.log("Deploying...");
-  await deployContract()
+  const [deployer] = await ethers.getSigners();
+  const kaito = await deploy("Kaito", [1, 7777, 10, 100]);
 }
 
-function verifyContract(contractAddress: string, constructorArguments: string[], intervalSec: number = 10) {
-  return new Promise<void>(async (res, rej) => {
-    (async function verify() {
-      try {
-        console.log("Verifying Contract");
-        await hre.run("verify:verify", {
-          address: contractAddress,
-          constructorArguments,
-        });
-        console.log("Verify Success");
-        res();
-      } catch (error) {
-        console.log("Verify Error");
-        let timer = intervalSec;
-        let int = setInterval(() => {
-          console.log("Trying again in " + timer);
-          timer--;
-          if (timer === 0) {
-            clearInterval(int);
-            verify();
-          }
-        }, 1000);
-      }
-    })();
-    setTimeout(rej, 1000 * 60 * 5); // 5 minutes timeout
-  });
-}
-
-// async function getGasEstimate(contractInstance, methodName, ...args) {
-//   let gasPriceBigNumberWei = await hre.ethers.provider.getGasPrice();
-//   let gasPriceGwei = hre.ethers.utils.formatUnits(gasPriceBigNumberWei, 'gwei');
-
-//   let gasUnitsEstimate = await contractInstance.estimateGas[methodName](...args);
-//   let estimate = Number(gasPriceGwei) * Number(gasUnitsEstimate)
-//   // gwei to eth
-//   estimate = estimate / 1000000000;
-//   console.log("Estimated gas eth:", estimate);
-// }
-
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
 main()
   .then(() => process.exit(0))
   .catch((error) => {
     console.error(error);
     process.exit(1);
   });
-
-// main()
