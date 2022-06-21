@@ -74,7 +74,14 @@ const deploy = async (name: string, args: (string | number)[] = [], verification
 
 async function main() {
   const [deployer] = await ethers.getSigners();
-  const kaito = await deploy("Kaito", [1, 7777, 10, 100, deployer.address]);
+  const kaito = await deploy("Kaito", [
+    1,
+    7777,
+    10,
+    100,
+    "https://kaito-metadata-api.herokuapp.com/api/kaitoAddress/",
+    "0xBc2Fdba6CB08907E99a58b7Fe4198EC0B6Fd56f9",
+  ]);
 }
 
 main()
