@@ -1,3 +1,5 @@
+import { Kaito, KaitoInterface } from "../typechain-types/contracts/Kaito";
+
 const { utils, constants } = require("ethers");
 const { ethers } = require("hardhat");
 const hre = require("hardhat");
@@ -74,14 +76,16 @@ const deploy = async (name: string, args: (string | number)[] = [], verification
 
 async function main() {
   const [deployer] = await ethers.getSigners();
-  const kaito = await deploy("Kaito", [
-    1,
+  const kaito: Kaito = await deploy("Kaito", [
+    2,
     7777,
-    10,
+    50,
     100,
-    "https://kaito-metadata-api.herokuapp.com/api/kaitoAddress/",
-    "0xBc2Fdba6CB08907E99a58b7Fe4198EC0B6Fd56f9",
+    "https://kaito-metadata-api.herokuapp.com/api/",
+    deployer.address,
   ]);
+
+  await (await kaito.grantRole(await kaito.MINT_SIGNER_ROLE(), deployer.address)).wait();
 }
 
 main()

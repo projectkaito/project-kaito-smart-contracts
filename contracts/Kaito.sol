@@ -63,7 +63,7 @@ contract Kaito is Ownable, ERC721A, AccessControl, ReentrancyGuard {
     ) ERC721A("Kaito", "Kaito", maxBatchSize_, collectionSize_) {
         maxTeamMint = maxTeamMint_;
         maxWhitelistMint = maxWhitelistMint_;
-        maxPublicMint = maxBatchSize_ - maxTeamMint_ - maxWhitelistMint_;
+        maxPublicMint = collectionSize_ - maxTeamMint_ - maxWhitelistMint_;
 
         _baseTokenURI = baseTokenUri_;
         authorized = _msgSender();
@@ -95,7 +95,7 @@ contract Kaito is Ownable, ERC721A, AccessControl, ReentrancyGuard {
         require(teamMintStartTimestamp < block.timestamp, "Minting will start soon");
         require(totalSupply() + quantity <= collectionSize, "Minting has been finished");
         require(_numberMinted(msg.sender) + quantity <= maxTeamMintPerWallet, "Cannot mint this much tokens");
-        require(!teamClaim[msg.sender], "Already minted");
+        require(!teamClaim[msg.sender], "Team already minted");
 
         bytes32 digest = keccak256(
             abi.encodePacked(
@@ -125,7 +125,7 @@ contract Kaito is Ownable, ERC721A, AccessControl, ReentrancyGuard {
         require(whitelistMintStartTimestamp < block.timestamp, "Minting will start soon");
         require(totalSupply() + quantity <= collectionSize, "Minting has been finished");
         require(_numberMinted(msg.sender) + quantity <= maxWhitelistMintPerWallet, "Cannot mint this much tokens");
-        require(!whitelistClaim[msg.sender], "Already minted");
+        require(!whitelistClaim[msg.sender], "Whitelist already minted");
 
         bytes32 digest = keccak256(
             abi.encodePacked(
@@ -140,7 +140,7 @@ contract Kaito is Ownable, ERC721A, AccessControl, ReentrancyGuard {
 
         whitelistClaim[msg.sender] = true;
         whitelistMintCount += quantity;
-        require(whitelistMintCount <= maxWhitelistMint, "Minting reached max cap for team");
+        require(whitelistMintCount <= maxWhitelistMint, "Minting reached max cap for whitelist");
         _safeMint(msg.sender, quantity);
     }
 

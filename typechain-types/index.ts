@@ -12,6 +12,8 @@ export type { IAccessControl } from "./@openzeppelin/contracts/access/IAccessCon
 export { IAccessControl__factory } from "./factories/@openzeppelin/contracts/access/IAccessControl__factory";
 export type { Ownable } from "./@openzeppelin/contracts/access/Ownable";
 export { Ownable__factory } from "./factories/@openzeppelin/contracts/access/Ownable__factory";
+export type { IERC20 } from "./@openzeppelin/contracts/token/ERC20/IERC20";
+export { IERC20__factory } from "./factories/@openzeppelin/contracts/token/ERC20/IERC20__factory";
 export type { IERC721Enumerable } from "./@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable";
 export { IERC721Enumerable__factory } from "./factories/@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable__factory";
 export type { IERC721Metadata } from "./@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata";

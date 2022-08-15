@@ -43,19 +43,24 @@ export interface KaitoInterface extends utils.Interface {
     "DEFAULT_ADMIN_ROLE()": FunctionFragment;
     "DOMAIN_SEPARATOR()": FunctionFragment;
     "MINT_SIGNER_ROLE()": FunctionFragment;
-    "MINT_TYPEHASH()": FunctionFragment;
+    "TEAM_MINT_TYPEHASH()": FunctionFragment;
+    "WHITELIST_MINT_TYPEHASH()": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "drainEth()": FunctionFragment;
+    "drainToken(address,address,uint256)": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
     "getOwnershipData(uint256)": FunctionFragment;
     "getRoleAdmin(bytes32)": FunctionFragment;
     "grantRole(bytes32,address)": FunctionFragment;
     "hasRole(bytes32,address)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
-    "maxMintPerWallet()": FunctionFragment;
+    "maxPublicMint()": FunctionFragment;
+    "maxPublicMintPerWallet()": FunctionFragment;
     "maxTeamMint()": FunctionFragment;
+    "maxTeamMintPerWallet()": FunctionFragment;
     "maxWhitelistMint()": FunctionFragment;
+    "maxWhitelistMintPerWallet()": FunctionFragment;
     "mint(uint256)": FunctionFragment;
     "mintTeam(uint256,uint256,uint8,bytes32,bytes32)": FunctionFragment;
     "mintWhitelist(uint256,uint256,uint8,bytes32,bytes32)": FunctionFragment;
@@ -64,6 +69,7 @@ export interface KaitoInterface extends utils.Interface {
     "numberMinted(address)": FunctionFragment;
     "owner()": FunctionFragment;
     "ownerOf(uint256)": FunctionFragment;
+    "publicMintCount()": FunctionFragment;
     "publicMintEnabled()": FunctionFragment;
     "publicMintStartTimestamp()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
@@ -95,19 +101,24 @@ export interface KaitoInterface extends utils.Interface {
       | "DEFAULT_ADMIN_ROLE"
       | "DOMAIN_SEPARATOR"
       | "MINT_SIGNER_ROLE"
-      | "MINT_TYPEHASH"
+      | "TEAM_MINT_TYPEHASH"
+      | "WHITELIST_MINT_TYPEHASH"
       | "approve"
       | "balanceOf"
       | "drainEth"
+      | "drainToken"
       | "getApproved"
       | "getOwnershipData"
       | "getRoleAdmin"
       | "grantRole"
       | "hasRole"
       | "isApprovedForAll"
-      | "maxMintPerWallet"
+      | "maxPublicMint"
+      | "maxPublicMintPerWallet"
       | "maxTeamMint"
+      | "maxTeamMintPerWallet"
       | "maxWhitelistMint"
+      | "maxWhitelistMintPerWallet"
       | "mint"
       | "mintTeam"
       | "mintWhitelist"
@@ -116,6 +127,7 @@ export interface KaitoInterface extends utils.Interface {
       | "numberMinted"
       | "owner"
       | "ownerOf"
+      | "publicMintCount"
       | "publicMintEnabled"
       | "publicMintStartTimestamp"
       | "renounceOwnership"
@@ -155,7 +167,11 @@ export interface KaitoInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "MINT_TYPEHASH",
+    functionFragment: "TEAM_MINT_TYPEHASH",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "WHITELIST_MINT_TYPEHASH",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -164,6 +180,10 @@ export interface KaitoInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
   encodeFunctionData(functionFragment: "drainEth", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "drainToken",
+    values: [string, string, BigNumberish]
+  ): string;
   encodeFunctionData(
     functionFragment: "getApproved",
     values: [BigNumberish]
@@ -189,7 +209,11 @@ export interface KaitoInterface extends utils.Interface {
     values: [string, string]
   ): string;
   encodeFunctionData(
-    functionFragment: "maxMintPerWallet",
+    functionFragment: "maxPublicMint",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "maxPublicMintPerWallet",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -197,7 +221,15 @@ export interface KaitoInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "maxTeamMintPerWallet",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "maxWhitelistMint",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "maxWhitelistMintPerWallet",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "mint", values: [BigNumberish]): string;
@@ -222,6 +254,10 @@ export interface KaitoInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "ownerOf",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "publicMintCount",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "publicMintEnabled",
@@ -327,12 +363,17 @@ export interface KaitoInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "MINT_TYPEHASH",
+    functionFragment: "TEAM_MINT_TYPEHASH",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "WHITELIST_MINT_TYPEHASH",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "drainEth", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "drainToken", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getApproved",
     data: BytesLike
@@ -352,7 +393,11 @@ export interface KaitoInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "maxMintPerWallet",
+    functionFragment: "maxPublicMint",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "maxPublicMintPerWallet",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -360,7 +405,15 @@ export interface KaitoInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "maxTeamMintPerWallet",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "maxWhitelistMint",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "maxWhitelistMintPerWallet",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
@@ -380,6 +433,10 @@ export interface KaitoInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "ownerOf", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "publicMintCount",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "publicMintEnabled",
     data: BytesLike
@@ -602,7 +659,9 @@ export interface Kaito extends BaseContract {
 
     MINT_SIGNER_ROLE(overrides?: CallOverrides): Promise<[string]>;
 
-    MINT_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
+    TEAM_MINT_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
+
+    WHITELIST_MINT_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
 
     approve(
       to: string,
@@ -613,6 +672,13 @@ export interface Kaito extends BaseContract {
     balanceOf(owner: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
     drainEth(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    drainToken(
+      token: string,
+      to: string,
+      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -646,11 +712,17 @@ export interface Kaito extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    maxMintPerWallet(overrides?: CallOverrides): Promise<[BigNumber]>;
+    maxPublicMint(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    maxPublicMintPerWallet(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     maxTeamMint(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    maxTeamMintPerWallet(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     maxWhitelistMint(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    maxWhitelistMintPerWallet(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     mint(
       quantity: BigNumberish,
@@ -690,6 +762,8 @@ export interface Kaito extends BaseContract {
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[string]>;
+
+    publicMintCount(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     publicMintEnabled(overrides?: CallOverrides): Promise<[boolean]>;
 
@@ -800,7 +874,9 @@ export interface Kaito extends BaseContract {
 
   MINT_SIGNER_ROLE(overrides?: CallOverrides): Promise<string>;
 
-  MINT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
+  TEAM_MINT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
+
+  WHITELIST_MINT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
   approve(
     to: string,
@@ -811,6 +887,13 @@ export interface Kaito extends BaseContract {
   balanceOf(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   drainEth(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  drainToken(
+    token: string,
+    to: string,
+    amount: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -844,11 +927,17 @@ export interface Kaito extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  maxMintPerWallet(overrides?: CallOverrides): Promise<BigNumber>;
+  maxPublicMint(overrides?: CallOverrides): Promise<BigNumber>;
+
+  maxPublicMintPerWallet(overrides?: CallOverrides): Promise<BigNumber>;
 
   maxTeamMint(overrides?: CallOverrides): Promise<BigNumber>;
 
+  maxTeamMintPerWallet(overrides?: CallOverrides): Promise<BigNumber>;
+
   maxWhitelistMint(overrides?: CallOverrides): Promise<BigNumber>;
+
+  maxWhitelistMintPerWallet(overrides?: CallOverrides): Promise<BigNumber>;
 
   mint(
     quantity: BigNumberish,
@@ -882,6 +971,8 @@ export interface Kaito extends BaseContract {
   owner(overrides?: CallOverrides): Promise<string>;
 
   ownerOf(tokenId: BigNumberish, overrides?: CallOverrides): Promise<string>;
+
+  publicMintCount(overrides?: CallOverrides): Promise<BigNumber>;
 
   publicMintEnabled(overrides?: CallOverrides): Promise<boolean>;
 
@@ -987,7 +1078,9 @@ export interface Kaito extends BaseContract {
 
     MINT_SIGNER_ROLE(overrides?: CallOverrides): Promise<string>;
 
-    MINT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
+    TEAM_MINT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
+
+    WHITELIST_MINT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
     approve(
       to: string,
@@ -998,6 +1091,13 @@ export interface Kaito extends BaseContract {
     balanceOf(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     drainEth(overrides?: CallOverrides): Promise<void>;
+
+    drainToken(
+      token: string,
+      to: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     getApproved(
       tokenId: BigNumberish,
@@ -1029,11 +1129,17 @@ export interface Kaito extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    maxMintPerWallet(overrides?: CallOverrides): Promise<BigNumber>;
+    maxPublicMint(overrides?: CallOverrides): Promise<BigNumber>;
+
+    maxPublicMintPerWallet(overrides?: CallOverrides): Promise<BigNumber>;
 
     maxTeamMint(overrides?: CallOverrides): Promise<BigNumber>;
 
+    maxTeamMintPerWallet(overrides?: CallOverrides): Promise<BigNumber>;
+
     maxWhitelistMint(overrides?: CallOverrides): Promise<BigNumber>;
+
+    maxWhitelistMintPerWallet(overrides?: CallOverrides): Promise<BigNumber>;
 
     mint(quantity: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
@@ -1064,6 +1170,8 @@ export interface Kaito extends BaseContract {
     owner(overrides?: CallOverrides): Promise<string>;
 
     ownerOf(tokenId: BigNumberish, overrides?: CallOverrides): Promise<string>;
+
+    publicMintCount(overrides?: CallOverrides): Promise<BigNumber>;
 
     publicMintEnabled(overrides?: CallOverrides): Promise<boolean>;
 
@@ -1242,7 +1350,9 @@ export interface Kaito extends BaseContract {
 
     MINT_SIGNER_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
-    MINT_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
+    TEAM_MINT_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
+
+    WHITELIST_MINT_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
 
     approve(
       to: string,
@@ -1253,6 +1363,13 @@ export interface Kaito extends BaseContract {
     balanceOf(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     drainEth(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    drainToken(
+      token: string,
+      to: string,
+      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1289,11 +1406,17 @@ export interface Kaito extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    maxMintPerWallet(overrides?: CallOverrides): Promise<BigNumber>;
+    maxPublicMint(overrides?: CallOverrides): Promise<BigNumber>;
+
+    maxPublicMintPerWallet(overrides?: CallOverrides): Promise<BigNumber>;
 
     maxTeamMint(overrides?: CallOverrides): Promise<BigNumber>;
 
+    maxTeamMintPerWallet(overrides?: CallOverrides): Promise<BigNumber>;
+
     maxWhitelistMint(overrides?: CallOverrides): Promise<BigNumber>;
+
+    maxWhitelistMintPerWallet(overrides?: CallOverrides): Promise<BigNumber>;
 
     mint(
       quantity: BigNumberish,
@@ -1330,6 +1453,8 @@ export interface Kaito extends BaseContract {
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    publicMintCount(overrides?: CallOverrides): Promise<BigNumber>;
 
     publicMintEnabled(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1441,7 +1566,13 @@ export interface Kaito extends BaseContract {
 
     MINT_SIGNER_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    MINT_TYPEHASH(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    TEAM_MINT_TYPEHASH(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    WHITELIST_MINT_TYPEHASH(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     approve(
       to: string,
@@ -1455,6 +1586,13 @@ export interface Kaito extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     drainEth(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    drainToken(
+      token: string,
+      to: string,
+      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1491,11 +1629,23 @@ export interface Kaito extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    maxMintPerWallet(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    maxPublicMint(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    maxPublicMintPerWallet(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     maxTeamMint(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    maxTeamMintPerWallet(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     maxWhitelistMint(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    maxWhitelistMintPerWallet(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     mint(
       quantity: BigNumberish,
@@ -1537,6 +1687,8 @@ export interface Kaito extends BaseContract {
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    publicMintCount(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     publicMintEnabled(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
