@@ -38,8 +38,8 @@ contract Kaito is Ownable, ERC721A, AccessControl, ReentrancyGuard {
     uint256 public constant maxTeamMintPerWallet = 2;
     uint256 public constant maxWhitelistMintPerWallet = 2;
 
-    mapping(address => bool) whitelistClaim;
-    mapping(address => bool) teamClaim;
+    mapping(address => bool) public whitelistClaim;
+    mapping(address => bool) public teamClaim;
 
     string private _baseTokenURI;
 
@@ -59,6 +59,9 @@ contract Kaito is Ownable, ERC721A, AccessControl, ReentrancyGuard {
         uint256 maxTeamMint_,
         uint256 maxWhitelistMint_,
         string memory baseTokenUri_,
+        uint256 teamMintStartTimestamp_,
+        uint256 whitelistMintStartTimestamp_,
+        uint256 publicMintStartTimestamp_,
         address owner_
     ) ERC721A("Kaito", "Kaito", maxBatchSize_, collectionSize_) {
         maxTeamMint = maxTeamMint_;
@@ -66,6 +69,9 @@ contract Kaito is Ownable, ERC721A, AccessControl, ReentrancyGuard {
         maxPublicMint = collectionSize_ - maxTeamMint_ - maxWhitelistMint_;
 
         _baseTokenURI = baseTokenUri_;
+        teamMintStartTimestamp = teamMintStartTimestamp_;
+        whitelistMintStartTimestamp = whitelistMintStartTimestamp_;
+        publicMintStartTimestamp = publicMintStartTimestamp_;
         authorized = _msgSender();
         uint256 chainId;
         assembly {

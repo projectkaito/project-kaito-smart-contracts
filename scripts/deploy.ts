@@ -77,11 +77,14 @@ const deploy = async (name: string, args: (string | number)[] = [], verification
 async function main() {
   const [deployer] = await ethers.getSigners();
   const kaito: Kaito = await deploy("Kaito", [
-    2,
-    7777,
-    50,
-    100,
-    "https://kaito-metadata-api.herokuapp.com/api/",
+    2, // batch size
+    7777, // collection size
+    50, // max team mint
+    100, // max whitelist mint
+    "https://kaito-metadata-api.herokuapp.com/api/", // base token uri
+    0,
+    0,
+    parseInt(String(Date.now() / 1000 + 60 * 60)),
     deployer.address,
   ]);
 

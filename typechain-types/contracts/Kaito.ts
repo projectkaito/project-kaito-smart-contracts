@@ -82,6 +82,7 @@ export interface KaitoInterface extends utils.Interface {
     "setOwnersExplicit(uint256)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "symbol()": FunctionFragment;
+    "teamClaim(address)": FunctionFragment;
     "teamMintCount()": FunctionFragment;
     "teamMintEnabled()": FunctionFragment;
     "teamMintStartTimestamp()": FunctionFragment;
@@ -91,6 +92,7 @@ export interface KaitoInterface extends utils.Interface {
     "totalSupply()": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
+    "whitelistClaim(address)": FunctionFragment;
     "whitelistMintCount()": FunctionFragment;
     "whitelistMintEnabled()": FunctionFragment;
     "whitelistMintStartTimestamp()": FunctionFragment;
@@ -140,6 +142,7 @@ export interface KaitoInterface extends utils.Interface {
       | "setOwnersExplicit"
       | "supportsInterface"
       | "symbol"
+      | "teamClaim"
       | "teamMintCount"
       | "teamMintEnabled"
       | "teamMintStartTimestamp"
@@ -149,6 +152,7 @@ export interface KaitoInterface extends utils.Interface {
       | "totalSupply"
       | "transferFrom"
       | "transferOwnership"
+      | "whitelistClaim"
       | "whitelistMintCount"
       | "whitelistMintEnabled"
       | "whitelistMintStartTimestamp"
@@ -301,6 +305,7 @@ export interface KaitoInterface extends utils.Interface {
     values: [BytesLike]
   ): string;
   encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
+  encodeFunctionData(functionFragment: "teamClaim", values: [string]): string;
   encodeFunctionData(
     functionFragment: "teamMintCount",
     values?: undefined
@@ -335,6 +340,10 @@ export interface KaitoInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "whitelistClaim",
     values: [string]
   ): string;
   encodeFunctionData(
@@ -476,6 +485,7 @@ export interface KaitoInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "teamClaim", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "teamMintCount",
     data: BytesLike
@@ -507,6 +517,10 @@ export interface KaitoInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "transferOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "whitelistClaim",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -823,6 +837,8 @@ export interface Kaito extends BaseContract {
 
     symbol(overrides?: CallOverrides): Promise<[string]>;
 
+    teamClaim(arg0: string, overrides?: CallOverrides): Promise<[boolean]>;
+
     teamMintCount(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     teamMintEnabled(overrides?: CallOverrides): Promise<[boolean]>;
@@ -858,6 +874,8 @@ export interface Kaito extends BaseContract {
       newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    whitelistClaim(arg0: string, overrides?: CallOverrides): Promise<[boolean]>;
 
     whitelistMintCount(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -1032,6 +1050,8 @@ export interface Kaito extends BaseContract {
 
   symbol(overrides?: CallOverrides): Promise<string>;
 
+  teamClaim(arg0: string, overrides?: CallOverrides): Promise<boolean>;
+
   teamMintCount(overrides?: CallOverrides): Promise<BigNumber>;
 
   teamMintEnabled(overrides?: CallOverrides): Promise<boolean>;
@@ -1064,6 +1084,8 @@ export interface Kaito extends BaseContract {
     newOwner: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  whitelistClaim(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
   whitelistMintCount(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1226,6 +1248,8 @@ export interface Kaito extends BaseContract {
 
     symbol(overrides?: CallOverrides): Promise<string>;
 
+    teamClaim(arg0: string, overrides?: CallOverrides): Promise<boolean>;
+
     teamMintCount(overrides?: CallOverrides): Promise<BigNumber>;
 
     teamMintEnabled(overrides?: CallOverrides): Promise<boolean>;
@@ -1258,6 +1282,8 @@ export interface Kaito extends BaseContract {
       newOwner: string,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    whitelistClaim(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
     whitelistMintCount(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1514,6 +1540,8 @@ export interface Kaito extends BaseContract {
 
     symbol(overrides?: CallOverrides): Promise<BigNumber>;
 
+    teamClaim(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
     teamMintCount(overrides?: CallOverrides): Promise<BigNumber>;
 
     teamMintEnabled(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1549,6 +1577,8 @@ export interface Kaito extends BaseContract {
       newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    whitelistClaim(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     whitelistMintCount(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1750,6 +1780,11 @@ export interface Kaito extends BaseContract {
 
     symbol(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    teamClaim(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     teamMintCount(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     teamMintEnabled(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1786,6 +1821,11 @@ export interface Kaito extends BaseContract {
     transferOwnership(
       newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    whitelistClaim(
+      arg0: string,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     whitelistMintCount(
