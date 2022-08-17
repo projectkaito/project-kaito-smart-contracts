@@ -7,9 +7,12 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/common/ERC2981.sol";
 import "./ERC721A.sol";
 
-contract Kaito is Ownable, ERC721A, AccessControl, ReentrancyGuard {
+contract Kaito is Ownable, ReentrancyGuard, AccessControl, ERC2981, ERC721A {
+    using Strings for uint256;
+
     bytes32 public constant MINT_SIGNER_ROLE = keccak256("MINT_SIGNER_ROLE");
     bytes32 public constant WHITELIST_MINT_TYPEHASH =
         keccak256("WhitelistMint(address user,uint256 quantity,uint256 deadline)");
@@ -88,6 +91,7 @@ contract Kaito is Ownable, ERC721A, AccessControl, ReentrancyGuard {
         );
         _setupRole(DEFAULT_ADMIN_ROLE, owner_);
         grantRole(MINT_SIGNER_ROLE, _msgSender());
+        setDefaultRoyalty(owner_, 1000); // 10%
         transferOwnership(owner_);
     }
 
@@ -164,8 +168,28 @@ contract Kaito is Ownable, ERC721A, AccessControl, ReentrancyGuard {
         _safeMint(msg.sender, quantity);
     }
 
-    function supportsInterface(bytes4 interfaceId) public view virtual override(AccessControl, ERC721A) returns (bool) {
-        return AccessControl.supportsInterface(interfaceId) || ERC721A.supportsInterface(interfaceId);
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override(AccessControl, ERC2981, ERC721A)
+        returns (bool)
+    {
+        return
+            AccessControl.supportsInterface(interfaceId) ||
+            ERC2981.supportsInterface(interfaceId) ||
+            ERC721A.supportsInterface(interfaceId);
+    }
+
+    function tokenURI(uint256 tokenId) public view override returns (string memory) {
+        require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
+
+        string memory baseURI = _baseURI();
+        return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, tokenId.toString(), ".json")) : "";
+    }
+
+    function setDefaultRoyalty(address receiver, uint96 feeNumerator) public {
+        _setDefaultRoyalty(receiver, feeNumerator);
     }
 
     function _baseURI() internal view virtual override returns (string memory) {

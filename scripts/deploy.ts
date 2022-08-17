@@ -81,10 +81,10 @@ async function main() {
     7777, // collection size
     50, // max team mint
     100, // max whitelist mint
-    "https://kaito-metadata-api.herokuapp.com/api/", // base token uri
+    "https://projectkaito-api.herokuapp.com/api/unrevealed/", // base token uri
     0,
+    parseInt(String(Date.now() / 1000 + 60 * 60 * 5)),
     0,
-    parseInt(String(Date.now() / 1000 + 60 * 60)),
     deployer.address,
   ]);
 
