@@ -1,4 +1,4 @@
-import { Kaito, KaitoInterface } from "../typechain-types/contracts/Kaito";
+import { ProjectKaito } from "../typechain-types";
 
 const { utils, constants } = require("ethers");
 const { ethers } = require("hardhat");
@@ -60,6 +60,12 @@ const verify = async (contractAddress: string, args: (string | number)[] = [], n
   }
 };
 
+const getDeployed = async (name: string, address: string) => {
+  const contractFactory = await ethers.getContractFactory(name);
+  const contract = await contractFactory.attach(address);
+  return contract;
+};
+
 const deploy = async (name: string, args: (string | number)[] = [], verificationWait = 100) => {
   const contractFactory = await ethers.getContractFactory(name);
   const contract = await contractFactory.deploy(...args);
@@ -74,21 +80,21 @@ const deploy = async (name: string, args: (string | number)[] = [], verification
   return contract;
 };
 
+const owner = "0xE7EEE4aA7c0e1f300a912223eFc42E4d74daD172";
+const baseURI = "https://projectkaito-api.herokuapp.com/api/unrevealed/";
+
 async function main() {
   const [deployer] = await ethers.getSigners();
-  const kaito: Kaito = await deploy("Kaito", [
-    2, // batch size
-    7777, // collection size
-    50, // max team mint
-    100, // max whitelist mint
-    "https://projectkaito-api.herokuapp.com/api/unrevealed/", // base token uri
-    0,
-    parseInt(String(Date.now() / 1000 + 60 * 60 * 5)),
-    0,
-    deployer.address,
-  ]);
 
-  await (await kaito.grantRole(await kaito.MINT_SIGNER_ROLE(), deployer.address)).wait();
+  const kaito: ProjectKaito = await deploy("ProjectKaito", [
+    229, // batch size
+    7777, // collection size
+    baseURI, // base token uri
+    1662019200,
+    1662040800,
+    1662127200,
+    owner,
+  ]);
 }
 
 main()

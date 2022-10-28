@@ -37,8 +37,8 @@ contract ERC721A is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable
 
     uint256 private currentIndex = 0;
 
-    uint256 internal immutable collectionSize;
-    uint256 internal immutable maxBatchSize;
+    uint256 internal collectionSize;
+    uint256 internal maxBatchSize;
 
     // Token name
     string private _name;

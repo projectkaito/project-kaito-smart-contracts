@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { ERC721A } from "./ERC721A";
-export type { Kaito } from "./Kaito";
+export type { ProjectKaito } from "./ProjectKaito";

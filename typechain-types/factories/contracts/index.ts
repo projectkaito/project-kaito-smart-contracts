@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { ERC721A__factory } from "./ERC721A__factory";
-export { Kaito__factory } from "./Kaito__factory";
+export { ProjectKaito__factory } from "./ProjectKaito__factory";

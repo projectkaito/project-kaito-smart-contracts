@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/common/ERC2981.sol";
 import "./ERC721A.sol";
 
-contract Kaito is Ownable, ReentrancyGuard, AccessControl, ERC2981, ERC721A {
+contract ProjectKaito is Ownable, ReentrancyGuard, AccessControl, ERC2981, ERC721A {
     using Strings for uint256;
 
     bytes32 public constant MINT_SIGNER_ROLE = keccak256("MINT_SIGNER_ROLE");
@@ -21,21 +21,13 @@ contract Kaito is Ownable, ReentrancyGuard, AccessControl, ERC2981, ERC721A {
 
     address authorized;
 
-    bool public teamMintEnabled = true;
-    bool public whitelistMintEnabled = true;
-    bool public publicMintEnabled = true;
+    bool public teamMintEnabled;
+    bool public whitelistMintEnabled;
+    bool public publicMintEnabled;
 
     uint256 public teamMintStartTimestamp;
     uint256 public whitelistMintStartTimestamp;
     uint256 public publicMintStartTimestamp;
-
-    uint256 public maxTeamMint;
-    uint256 public maxWhitelistMint;
-    uint256 public maxPublicMint;
-
-    uint256 public teamMintCount;
-    uint256 public whitelistMintCount;
-    uint256 public publicMintCount;
 
     uint256 public constant maxPublicMintPerWallet = 1;
     uint256 public constant maxTeamMintPerWallet = 2;
@@ -45,6 +37,7 @@ contract Kaito is Ownable, ReentrancyGuard, AccessControl, ERC2981, ERC721A {
     mapping(address => bool) public teamClaim;
 
     string private _baseTokenURI;
+    string private _postfix = ".json";
 
     modifier isHuman() {
         require(tx.origin == msg.sender, "Only humans :)");
@@ -59,23 +52,19 @@ contract Kaito is Ownable, ReentrancyGuard, AccessControl, ERC2981, ERC721A {
     constructor(
         uint256 maxBatchSize_,
         uint256 collectionSize_,
-        uint256 maxTeamMint_,
-        uint256 maxWhitelistMint_,
         string memory baseTokenUri_,
         uint256 teamMintStartTimestamp_,
         uint256 whitelistMintStartTimestamp_,
         uint256 publicMintStartTimestamp_,
         address owner_
-    ) ERC721A("Kaito", "Kaito", maxBatchSize_, collectionSize_) {
-        maxTeamMint = maxTeamMint_;
-        maxWhitelistMint = maxWhitelistMint_;
-        maxPublicMint = collectionSize_ - maxTeamMint_ - maxWhitelistMint_;
-
+    ) ERC721A("Project Kaito", "KAITO", maxBatchSize_, collectionSize_) {
         _baseTokenURI = baseTokenUri_;
         teamMintStartTimestamp = teamMintStartTimestamp_;
         whitelistMintStartTimestamp = whitelistMintStartTimestamp_;
         publicMintStartTimestamp = publicMintStartTimestamp_;
         authorized = _msgSender();
+        _safeMint(owner_, maxBatchSize_);
+
         uint256 chainId;
         assembly {
             chainId := chainid()
@@ -83,15 +72,16 @@ contract Kaito is Ownable, ReentrancyGuard, AccessControl, ERC2981, ERC721A {
         DOMAIN_SEPARATOR = keccak256(
             abi.encode(
                 keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
-                keccak256(bytes("Kaito")),
+                keccak256(bytes("ProjectKaito")),
                 keccak256(bytes("1")),
                 chainId,
                 address(this)
             )
         );
+
         _setupRole(DEFAULT_ADMIN_ROLE, owner_);
-        grantRole(MINT_SIGNER_ROLE, _msgSender());
-        setDefaultRoyalty(owner_, 1000); // 10%
+        _setupRole(MINT_SIGNER_ROLE, _msgSender());
+        _setDefaultRoyalty(owner_, 1000); // 10%
         transferOwnership(owner_);
     }
 
@@ -102,11 +92,14 @@ contract Kaito is Ownable, ReentrancyGuard, AccessControl, ERC2981, ERC721A {
         bytes32 r,
         bytes32 s
     ) external isHuman {
-        require(teamMintEnabled, "Kaito: Team mint is disabled");
-        require(teamMintStartTimestamp < block.timestamp, "Kaito: Minting will start soon");
-        require(totalSupply() + quantity <= collectionSize, "Kaito: Minting has been finished");
-        require(_numberMinted(msg.sender) + quantity <= maxTeamMintPerWallet, "Kaito: Cannot mint this much tokens");
-        require(!teamClaim[msg.sender], "Kaito: Team already minted");
+        require(teamMintEnabled, "ProjectKaito: Team mint is disabled");
+        require(teamMintStartTimestamp < block.timestamp, "ProjectKaito: Minting will start soon");
+        require(totalSupply() + quantity <= collectionSize, "ProjectKaito: Minting has been finished");
+        require(
+            _numberMinted(msg.sender) + quantity <= maxTeamMintPerWallet,
+            "ProjectKaito: Cannot mint this much tokens"
+        );
+        require(!teamClaim[msg.sender], "ProjectKaito: Team already minted");
 
         bytes32 digest = keccak256(
             abi.encodePacked(
@@ -115,13 +108,11 @@ contract Kaito is Ownable, ReentrancyGuard, AccessControl, ERC2981, ERC721A {
                 keccak256(abi.encode(TEAM_MINT_TYPEHASH, msg.sender, quantity, deadline))
             )
         );
-        require(deadline >= block.timestamp, "Kaito: Mint signature expired");
+        require(deadline >= block.timestamp, "ProjectKaito: Mint signature expired");
         address signer = ecrecover(digest, v, r, s);
-        require(hasRole(MINT_SIGNER_ROLE, signer), "Kaito: Invalid signature");
+        require(hasRole(MINT_SIGNER_ROLE, signer), "ProjectKaito: Invalid signature");
 
         teamClaim[msg.sender] = true;
-        teamMintCount += quantity;
-        require(teamMintCount <= maxTeamMint, "Kaito: Minting reached max cap for team");
         _safeMint(msg.sender, quantity);
     }
 
@@ -132,14 +123,14 @@ contract Kaito is Ownable, ReentrancyGuard, AccessControl, ERC2981, ERC721A {
         bytes32 r,
         bytes32 s
     ) external isHuman {
-        require(whitelistMintEnabled, "Kaito: Whitelist mint is disabled");
-        require(whitelistMintStartTimestamp < block.timestamp, "Kaito: Minting will start soon");
-        require(totalSupply() + quantity <= collectionSize, "Kaito: Minting has been finished");
+        require(whitelistMintEnabled, "ProjectKaito: Whitelist mint is disabled");
+        require(whitelistMintStartTimestamp < block.timestamp, "ProjectKaito: Minting will start soon");
+        require(totalSupply() + quantity <= collectionSize, "ProjectKaito: Minting has been finished");
         require(
             _numberMinted(msg.sender) + quantity <= maxWhitelistMintPerWallet,
-            "Kaito: Cannot mint this much tokens"
+            "ProjectKaito: Cannot mint this much tokens"
         );
-        require(!whitelistClaim[msg.sender], "Kaito: Whitelist already minted");
+        require(!whitelistClaim[msg.sender], "ProjectKaito: Whitelist already minted");
 
         bytes32 digest = keccak256(
             abi.encodePacked(
@@ -148,23 +139,22 @@ contract Kaito is Ownable, ReentrancyGuard, AccessControl, ERC2981, ERC721A {
                 keccak256(abi.encode(WHITELIST_MINT_TYPEHASH, msg.sender, quantity, deadline))
             )
         );
-        require(deadline >= block.timestamp, "Kaito: Mint signature expired");
+        require(deadline >= block.timestamp, "ProjectKaito: Mint signature expired");
         address signer = ecrecover(digest, v, r, s);
-        require(hasRole(MINT_SIGNER_ROLE, signer), "Kaito: Invalid signature");
+        require(hasRole(MINT_SIGNER_ROLE, signer), "ProjectKaito: Invalid signature");
 
         whitelistClaim[msg.sender] = true;
-        whitelistMintCount += quantity;
-        require(whitelistMintCount <= maxWhitelistMint, "Kaito: Minting reached max cap for whitelist");
         _safeMint(msg.sender, quantity);
     }
 
     function mint(uint256 quantity) external isHuman {
-        require(publicMintEnabled, "Kaito: Minting is disabled at the moment");
-        require(publicMintStartTimestamp < block.timestamp, "Kaito: Minting will start soon");
-        require(totalSupply() + quantity <= collectionSize, "Kaito: Minting has been finished");
-        require(_numberMinted(msg.sender) + quantity <= maxPublicMintPerWallet, "Kaito: Cannot mint this much tokens");
-        publicMintCount += quantity;
-        require(publicMintCount <= maxPublicMint, "Kaito: Minting reached max cap for public");
+        require(publicMintEnabled, "ProjectKaito: Minting is disabled at the moment");
+        require(publicMintStartTimestamp < block.timestamp, "ProjectKaito: Minting will start soon");
+        require(totalSupply() + quantity <= collectionSize, "ProjectKaito: Minting has been finished");
+        require(
+            _numberMinted(msg.sender) + quantity <= maxPublicMintPerWallet,
+            "ProjectKaito: Cannot mint this much tokens"
+        );
         _safeMint(msg.sender, quantity);
     }
 
@@ -185,32 +175,15 @@ contract Kaito is Ownable, ReentrancyGuard, AccessControl, ERC2981, ERC721A {
         require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
 
         string memory baseURI = _baseURI();
-        return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, tokenId.toString(), ".json")) : "";
+        return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, tokenId.toString(), _postfix)) : "";
     }
 
-    function setDefaultRoyalty(address receiver, uint96 feeNumerator) public {
+    function setDefaultRoyalty(address receiver, uint96 feeNumerator) external onlyOwner {
         _setDefaultRoyalty(receiver, feeNumerator);
     }
 
     function _baseURI() internal view virtual override returns (string memory) {
         return _baseTokenURI;
-    }
-
-    function setBaseURI(string calldata baseURI) external onlyOwnerAndAuthorized {
-        _baseTokenURI = baseURI;
-    }
-
-    function drainEth() external onlyOwner nonReentrant {
-        (bool success, ) = msg.sender.call{value: address(this).balance}("");
-        require(success, "Kaito: Transfer failed.");
-    }
-
-    function drainToken(
-        IERC20 token,
-        address to,
-        uint256 amount
-    ) external onlyOwner nonReentrant {
-        token.transfer(to, amount);
     }
 
     function setOwnersExplicit(uint256 quantity) external onlyOwner nonReentrant {
@@ -223,5 +196,34 @@ contract Kaito is Ownable, ReentrancyGuard, AccessControl, ERC2981, ERC721A {
 
     function getOwnershipData(uint256 tokenId) external view returns (TokenOwnership memory) {
         return ownershipOf(tokenId);
+    }
+
+    function setBaseURI(string calldata baseURI, string calldata postfix) external onlyOwnerAndAuthorized {
+        _baseTokenURI = baseURI;
+        _postfix = postfix;
+    }
+
+    function setTeamMintSettings(bool _teamMintEnabled, uint256 _teamMintStartTimestamp)
+        external
+        onlyOwnerAndAuthorized
+    {
+        teamMintEnabled = _teamMintEnabled;
+        teamMintStartTimestamp = _teamMintStartTimestamp;
+    }
+
+    function setWhitelistMintSettings(bool _whitelistMintEnabled, uint256 _whitelistMintStartTimestamp)
+        external
+        onlyOwnerAndAuthorized
+    {
+        whitelistMintEnabled = _whitelistMintEnabled;
+        whitelistMintStartTimestamp = _whitelistMintStartTimestamp;
+    }
+
+    function setPubilcSettings(bool _publicMintEnabled, uint256 _publicMintStartTimestamp)
+        external
+        onlyOwnerAndAuthorized
+    {
+        publicMintEnabled = _publicMintEnabled;
+        publicMintStartTimestamp = _publicMintStartTimestamp;
     }
 }

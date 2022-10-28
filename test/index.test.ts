@@ -1,20 +1,18 @@
 import { expect } from "chai";
 import { utils } from "ethers";
 import { ethers } from "hardhat";
-import { Kaito } from "../typechain-types";
+import { ProjectKaito } from "../typechain-types";
 
 describe("Kaito test", () => {
-  let Kaito: Kaito;
+  let Kaito: ProjectKaito;
 
   it("It should deploy Kaito", async () => {
     const [deployer] = await ethers.getSigners();
 
-    const kaitoContract = await ethers.getContractFactory("Kaito");
+    const kaitoContract = await ethers.getContractFactory("ProjectKaito");
     Kaito = await kaitoContract.deploy(
       2, // batch size
       7777, // collection size
-      50, // max team mint
-      100, // max whitelist mint
       "", // base token uri
       0,
       0,
@@ -30,6 +28,8 @@ describe("Kaito test", () => {
     const signature = await signWhitelist(Kaito.address, user.address, quantity, deadline, "whitelist");
     const splitSignature = utils.splitSignature(signature);
 
+    await Kaito.setWhitelistMintSettings(true, 0);
+
     expect(
       await Kaito.connect(user).mintWhitelist(deadline, quantity, splitSignature.v, splitSignature.r, splitSignature.s),
       "Team mint failed"
@@ -42,6 +42,8 @@ describe("Kaito test", () => {
     const deadline = parseInt(String(Date.now() / 1000 + 60 * 60 * 24));
     const signature = await signWhitelist(Kaito.address, user.address, quantity, deadline, "team");
     const splitSignature = utils.splitSignature(signature);
+
+    await Kaito.setTeamMintSettings(true, 0);
 
     expect(
       await Kaito.connect(user).mintTeam(deadline, quantity, splitSignature.v, splitSignature.r, splitSignature.s),
@@ -60,7 +62,7 @@ const signWhitelist = async (
   const [deployer] = await ethers.getSigners();
   const chainId = (await ethers.provider.getNetwork()).chainId;
   const domain = {
-    name: "Kaito",
+    name: "ProjectKaito",
     version: "1",
     chainId: chainId,
     verifyingContract: contract,
